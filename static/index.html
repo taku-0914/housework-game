@@ -182,6 +182,51 @@
             transform: none;
         }
 
+        .btn.green {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-small {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-small.delete {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .btn-small.delete:hover {
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
+        }
+
         .task-list {
             display: grid;
             gap: 15px;
@@ -226,47 +271,6 @@
         .task-details {
             font-size: 0.9rem;
             color: #666;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            transition: border-color 0.3s ease;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn-small {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            margin: 0 5px;
-        }
-
-        .btn-small:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-small.delete {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-        }
-
-        .btn-small.delete:hover {
-            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
         }
 
         .task-actions {
@@ -464,7 +468,7 @@
                     <button class="btn" onclick="logTask()" id="logButton">
                         🎯 家事を記録する
                     </button>
-                    <button class="btn" onclick="loadTasksForSelect()" style="background: #28a745;">
+                    <button class="btn green" onclick="refreshTaskSelect()">
                         🔄 選択肢を更新
                     </button>
                 </div>
@@ -541,6 +545,7 @@
         // グローバル変数
         let currentTab = 'dashboard';
         let isConnected = false;
+        let allTasks = [];
 
         // API接続状態を更新
         function updateConnectionStatus(connected) {
@@ -586,7 +591,7 @@
                     loadTasks();
                     break;
                 case 'log':
-                    await loadTasksForSelect(); // 家事記録タブを開いた時も更新
+                    loadTasksForSelect();
                     break;
                 case 'history':
                     loadHistory();
@@ -638,8 +643,8 @@
         async function loadTasks() {
             try {
                 const response = await apiCall('/tasks');
-                window.allTasks = response.tasks || []; // グローバルに保存
-                displayTasks(window.allTasks);
+                allTasks = response.tasks || [];
+                displayTasks(allTasks);
             } catch (error) {
                 showNotification('タスク一覧の読み込みに失敗しました', 'error');
             }
@@ -665,7 +670,7 @@
                         </div>
                         <div class="task-actions">
                             <button class="btn-small" onclick="toggleEditForm(${task.id})">✏️ 編集</button>
-                            <button class="btn-small delete" onclick="deleteTask(${task.id}, '${task.name}')">🗑️ 削除</button>
+                            <button class="btn-small delete" onclick="deleteTask(${task.id}, '${task.name.replace(/'/g, "\\'")}')">🗑️ 削除</button>
                         </div>
                         <div id="editForm${task.id}" class="edit-form hidden">
                             <div class="edit-form-row">
@@ -689,7 +694,6 @@
         // 検索フィルター機能
         function filterTasks() {
             const searchTerm = document.getElementById('taskSearchBox').value.toLowerCase();
-            const allTasks = window.allTasks || [];
             
             if (searchTerm === '') {
                 displayTasks(allTasks);
@@ -781,6 +785,12 @@
             }
         }
 
+        // 手動で選択肢を更新
+        function refreshTaskSelect() {
+            loadTasksForSelect();
+            showNotification('選択肢を更新しました');
+        }
+
         // 新しい家事を追加
         async function addNewTask() {
             const name = document.getElementById('newTaskName').value.trim();
@@ -808,8 +818,8 @@
                 document.getElementById('newTaskDescription').value = '';
 
                 // 全ての関連する表示を更新
-                await loadTasks();              // 家事一覧を更新
-                await loadTasksForSelect();     // 家事記録の選択肢を更新
+                loadTasks();
+                loadTasksForSelect();
 
             } catch (error) {
                 showNotification('家事の追加に失敗しました', 'error');
@@ -941,8 +951,8 @@
                     showNotification(message);
 
                     // 全ての関連する表示を更新
-                    await loadTasks();              // 家事一覧を更新
-                    await loadTasksForSelect();     // 家事記録の選択肢を更新
+                    loadTasks();
+                    loadTasksForSelect();
                 }
 
                 // ファイル選択をクリア
