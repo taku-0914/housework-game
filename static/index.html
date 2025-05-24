@@ -460,9 +460,14 @@
                         <input type="number" id="healthCondition" value="1.0" min="0.5" max="1.0" step="0.1">
                     </div>
                 </div>
-                <button class="btn" onclick="logTask()" id="logButton">
-                    🎯 家事を記録する
-                </button>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button class="btn" onclick="logTask()" id="logButton">
+                        🎯 家事を記録する
+                    </button>
+                    <button class="btn" onclick="loadTasksForSelect()" style="background: #28a745;">
+                        🔄 選択肢を更新
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -581,7 +586,7 @@
                     loadTasks();
                     break;
                 case 'log':
-                    loadTasksForSelect();
+                    await loadTasksForSelect(); // 家事記録タブを開いた時も更新
                     break;
                 case 'history':
                     loadHistory();
@@ -802,8 +807,9 @@
                 document.getElementById('newTaskPoints').value = '';
                 document.getElementById('newTaskDescription').value = '';
 
-                // タスク選択肢を更新
-                loadTasksForSelect();
+                // 全ての関連する表示を更新
+                await loadTasks();              // 家事一覧を更新
+                await loadTasksForSelect();     // 家事記録の選択肢を更新
 
             } catch (error) {
                 showNotification('家事の追加に失敗しました', 'error');
@@ -934,9 +940,9 @@
                     }
                     showNotification(message);
 
-                    // タスク選択肢を更新
-                    loadTasksForSelect();
-                    loadTasks();
+                    // 全ての関連する表示を更新
+                    await loadTasks();              // 家事一覧を更新
+                    await loadTasksForSelect();     // 家事記録の選択肢を更新
                 }
 
                 // ファイル選択をクリア
