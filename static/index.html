@@ -228,6 +228,80 @@
             color: #666;
         }
 
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-small {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-small.delete {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .btn-small.delete:hover {
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .edit-form {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #f1f3f4;
+        }
+
+        .edit-form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .edit-form input {
+            padding: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .edit-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
         .hidden {
             display: none;
         }
@@ -395,6 +469,10 @@
         <!-- 家事一覧 -->
         <div id="tasks" class="content hidden">
             <h2 style="margin-bottom: 20px;">🏠 家事一覧</h2>
+            
+            <!-- 検索ボックス -->
+            <input type="text" id="taskSearchBox" class="search-box" placeholder="🔍 家事名や説明で検索..." onkeyup="filterTasks()">
+            
             <div class="task-list" id="tasksList">
                 <!-- 動的に読み込み -->
             </div>
@@ -555,29 +633,124 @@
         async function loadTasks() {
             try {
                 const response = await apiCall('/tasks');
-                const tasksList = document.getElementById('tasksList');
-                tasksList.innerHTML = '';
-                
-                if (response.tasks && response.tasks.length > 0) {
-                    response.tasks.forEach(task => {
-                        const taskItem = document.createElement('div');
-                        taskItem.className = 'task-item';
-                        taskItem.innerHTML = `
-                            <div class="task-header">
-                                <div class="task-name">${task.name}</div>
-                                <div class="task-points">${task.base_points}pt</div>
-                            </div>
-                            <div class="task-details">
-                                説明: ${task.description}
-                            </div>
-                        `;
-                        tasksList.appendChild(taskItem);
-                    });
-                } else {
-                    tasksList.innerHTML = '<p style="text-align: center; color: #666;">家事が登録されていません</p>';
-                }
+                window.allTasks = response.tasks || []; // グローバルに保存
+                displayTasks(window.allTasks);
             } catch (error) {
                 showNotification('タスク一覧の読み込みに失敗しました', 'error');
+            }
+        }
+
+        // タスクを表示する関数
+        function displayTasks(tasks) {
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '';
+            
+            if (tasks && tasks.length > 0) {
+                tasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'task-item';
+                    taskItem.setAttribute('data-task-id', task.id);
+                    taskItem.innerHTML = `
+                        <div class="task-header">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-points">${task.base_points}pt</div>
+                        </div>
+                        <div class="task-details">
+                            説明: ${task.description}
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn-small" onclick="toggleEditForm(${task.id})">✏️ 編集</button>
+                            <button class="btn-small delete" onclick="deleteTask(${task.id}, '${task.name}')">🗑️ 削除</button>
+                        </div>
+                        <div id="editForm${task.id}" class="edit-form hidden">
+                            <div class="edit-form-row">
+                                <input type="text" id="editName${task.id}" value="${task.name}" placeholder="家事名">
+                                <input type="number" id="editPoints${task.id}" value="${task.base_points}" min="1" max="100" placeholder="ポイント">
+                            </div>
+                            <input type="text" id="editDescription${task.id}" value="${task.description}" placeholder="説明（任意）">
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-small" onclick="saveTask(${task.id})">💾 保存</button>
+                                <button class="btn-small" onclick="toggleEditForm(${task.id})">❌ キャンセル</button>
+                            </div>
+                        </div>
+                    `;
+                    tasksList.appendChild(taskItem);
+                });
+            } else {
+                tasksList.innerHTML = '<p style="text-align: center; color: #666;">家事が登録されていません</p>';
+            }
+        }
+
+        // 検索フィルター機能
+        function filterTasks() {
+            const searchTerm = document.getElementById('taskSearchBox').value.toLowerCase();
+            const allTasks = window.allTasks || [];
+            
+            if (searchTerm === '') {
+                displayTasks(allTasks);
+            } else {
+                const filteredTasks = allTasks.filter(task => 
+                    task.name.toLowerCase().includes(searchTerm) || 
+                    task.description.toLowerCase().includes(searchTerm)
+                );
+                displayTasks(filteredTasks);
+            }
+        }
+
+        // 編集フォームの表示/非表示を切り替え
+        function toggleEditForm(taskId) {
+            const editForm = document.getElementById(`editForm${taskId}`);
+            editForm.classList.toggle('hidden');
+        }
+
+        // タスクを保存
+        async function saveTask(taskId) {
+            const name = document.getElementById(`editName${taskId}`).value.trim();
+            const points = parseInt(document.getElementById(`editPoints${taskId}`).value);
+            const description = document.getElementById(`editDescription${taskId}`).value.trim();
+
+            if (!name || !points) {
+                showNotification('家事名とポイントは必須です', 'error');
+                return;
+            }
+
+            try {
+                const updatedTask = {
+                    name: name,
+                    base_points: points,
+                    description: description
+                };
+
+                await apiCall(`/tasks/${taskId}`, 'PUT', updatedTask);
+                showNotification('家事を更新しました！');
+
+                // 一覧を更新
+                loadTasks();
+                // タスク選択肢も更新
+                loadTasksForSelect();
+
+            } catch (error) {
+                showNotification('家事の更新に失敗しました', 'error');
+            }
+        }
+
+        // タスクを削除
+        async function deleteTask(taskId, taskName) {
+            if (!confirm(`「${taskName}」を削除しますか？`)) {
+                return;
+            }
+
+            try {
+                await apiCall(`/tasks/${taskId}`, 'DELETE');
+                showNotification(`「${taskName}」を削除しました`);
+
+                // 一覧を更新
+                loadTasks();
+                // タスク選択肢も更新
+                loadTasksForSelect();
+
+            } catch (error) {
+                showNotification('家事の削除に失敗しました', 'error');
             }
         }
 
