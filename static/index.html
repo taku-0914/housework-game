@@ -182,32 +182,6 @@
             transform: none;
         }
 
-        .btn-small {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            margin: 0 5px;
-        }
-
-        .btn-small:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-small.delete {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-        }
-
-        .btn-small.delete:hover {
-            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
-        }
-
         .task-list {
             display: grid;
             gap: 15px;
@@ -250,68 +224,8 @@
         }
 
         .task-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
             font-size: 0.9rem;
             color: #666;
-        }
-
-        .manage-task-item {
-            background: white;
-            border: 2px solid #f1f3f4;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .manage-task-item:hover {
-            border-color: #667eea;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-
-        .manage-task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .manage-task-info {
-            flex: 1;
-        }
-
-        .manage-task-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .edit-form {
-            display: grid;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #f1f3f4;
-        }
-
-        .edit-form-row {
-            display: grid;
-            grid-template-columns: 1fr 100px;
-            gap: 10px;
-            align-items: end;
-        }
-
-        .edit-form input {
-            padding: 8px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .edit-form input:focus {
-            outline: none;
-            border-color: #667eea;
         }
 
         .hidden {
@@ -362,22 +276,6 @@
 
         .notification.error {
             background: #dc3545;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .status-indicator {
@@ -498,7 +396,7 @@
         <div id="tasks" class="content hidden">
             <h2 style="margin-bottom: 20px;">🏠 家事一覧</h2>
             <div class="task-list" id="tasksList">
-                <!-- APIから動的に読み込み -->
+                <!-- 動的に読み込み -->
             </div>
             <button class="btn" onclick="loadTasks()">🔄 一覧を更新</button>
         </div>
@@ -507,28 +405,12 @@
         <div id="manage" class="content hidden">
             <h2 style="margin-bottom: 20px;">⚙️ 家事管理</h2>
             
-            <!-- CSV機能 -->
-            <div class="task-form">
-                <h3 style="margin-bottom: 15px;">📤 CSV エクスポート・インポート</h3>
-                <div class="form-row">
-                    <button class="btn" onclick="exportTasksCSV()">📥 CSV エクスポート</button>
-                    <div class="form-group">
-                        <label for="csvFile">CSVファイルを選択</label>
-                        <input type="file" id="csvFile" accept=".csv" onchange="handleCSVFile(event)">
-                    </div>
-                </div>
-                <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
-                    CSVフォーマット: name, base_points, description
-                </p>
-            </div>
-
-            <!-- 新規家事追加 -->
             <div class="task-form">
                 <h3 style="margin-bottom: 15px;">➕ 新しい家事を追加</h3>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="newTaskName">家事名</label>
-                        <input type="text" id="newTaskName" placeholder="例: 🧽 お風呂掃除">
+                        <input type="text" id="newTaskName" placeholder="例: お風呂掃除">
                     </div>
                     <div class="form-group">
                         <label for="newTaskPoints">ポイント</label>
@@ -541,21 +423,13 @@
                 </div>
                 <button class="btn" onclick="addNewTask()">➕ 家事を追加</button>
             </div>
-
-            <!-- 既存家事の編集・削除 -->
-            <div class="task-form">
-                <h3 style="margin-bottom: 15px;">✏️ 家事の編集・削除</h3>
-                <div class="task-list" id="manageTasksList">
-                    <!-- 動的に読み込み -->
-                </div>
-            </div>
         </div>
 
         <!-- 履歴 -->
         <div id="history" class="content hidden">
             <h2 style="margin-bottom: 20px;">📈 家事履歴</h2>
             <div id="historyList">
-                <!-- APIから動的に読み込み -->
+                <!-- 動的に読み込み -->
             </div>
             <button class="btn" onclick="loadHistory()">🔄 履歴を更新</button>
         </div>
@@ -568,7 +442,6 @@
     <script>
         // グローバル変数
         let currentTab = 'dashboard';
-        let tasksData = [];
         let isConnected = false;
 
         // API接続状態を更新
@@ -588,15 +461,20 @@
 
         // タブ切り替え
         function showTab(tabName) {
+            // すべてのコンテンツを非表示
             document.querySelectorAll('.content').forEach(content => {
                 content.classList.add('hidden');
             });
             
+            // すべてのタブからactiveクラスを削除
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
             
+            // 選択されたコンテンツを表示
             document.getElementById(tabName).classList.remove('hidden');
+            
+            // クリックされたタブにactiveクラスを追加
             event.target.classList.add('active');
             
             currentTab = tabName;
@@ -608,9 +486,6 @@
                     break;
                 case 'tasks':
                     loadTasks();
-                    break;
-                case 'manage':
-                    loadManageTasks();
                     break;
                 case 'log':
                     loadTasksForSelect();
@@ -665,25 +540,27 @@
         async function loadTasks() {
             try {
                 const response = await apiCall('/tasks');
-                tasksData = response.tasks;
-                
                 const tasksList = document.getElementById('tasksList');
                 tasksList.innerHTML = '';
                 
-                tasksData.forEach(task => {
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'task-item';
-                    taskItem.innerHTML = `
-                        <div class="task-header">
-                            <div class="task-name">${task.name}</div>
-                            <div class="task-points">${task.base_points}pt</div>
-                        </div>
-                        <div class="task-details">
-                            <div>説明: ${task.description}</div>
-                        </div>
-                    `;
-                    tasksList.appendChild(taskItem);
-                });
+                if (response.tasks && response.tasks.length > 0) {
+                    response.tasks.forEach(task => {
+                        const taskItem = document.createElement('div');
+                        taskItem.className = 'task-item';
+                        taskItem.innerHTML = `
+                            <div class="task-header">
+                                <div class="task-name">${task.name}</div>
+                                <div class="task-points">${task.base_points}pt</div>
+                            </div>
+                            <div class="task-details">
+                                説明: ${task.description}
+                            </div>
+                        `;
+                        tasksList.appendChild(taskItem);
+                    });
+                } else {
+                    tasksList.innerHTML = '<p style="text-align: center; color: #666;">家事が登録されていません</p>';
+                }
             } catch (error) {
                 showNotification('タスク一覧の読み込みに失敗しました', 'error');
             }
@@ -696,12 +573,16 @@
                 const taskSelect = document.getElementById('taskSelect');
                 taskSelect.innerHTML = '';
                 
-                response.tasks.forEach(task => {
-                    const option = document.createElement('option');
-                    option.value = task.id;
-                    option.textContent = `${task.name} (${task.base_points}pt)`;
-                    taskSelect.appendChild(option);
-                });
+                if (response.tasks && response.tasks.length > 0) {
+                    response.tasks.forEach(task => {
+                        const option = document.createElement('option');
+                        option.value = task.id;
+                        option.textContent = `${task.name} (${task.base_points}pt)`;
+                        taskSelect.appendChild(option);
+                    });
+                } else {
+                    taskSelect.innerHTML = '<option value="">家事が登録されていません</option>';
+                }
             } catch (error) {
                 showNotification('タスク選択肢の読み込みに失敗しました', 'error');
             }
@@ -733,9 +614,7 @@
                 document.getElementById('newTaskPoints').value = '';
                 document.getElementById('newTaskDescription').value = '';
 
-                // 管理画面を更新
-                loadManageTasks();
-                // タスク選択肢も更新
+                // タスク選択肢を更新
                 loadTasksForSelect();
 
             } catch (error) {
@@ -743,135 +622,92 @@
             }
         }
 
-        // 管理用タスク一覧を読み込み
-        async function loadManageTasks() {
+        // 家事記録
+        async function logTask() {
+            const button = document.getElementById('logButton');
+            const originalText = button.innerHTML;
+            
             try {
-                const response = await apiCall('/tasks');
-                const manageTasksList = document.getElementById('manageTasksList');
-                manageTasksList.innerHTML = '';
-
-                if (response.tasks.length === 0) {
-                    manageTasksList.innerHTML = '<p style="text-align: center; color: #666;">家事が登録されていません</p>';
-                    return;
-                }
-
-                response.tasks.forEach(task => {
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'manage-task-item';
-                    taskItem.innerHTML = `
-                        <div class="manage-task-header">
-                            <div class="manage-task-info">
-                                <div class="task-name">${task.name}</div>
-                                <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
-                                    ${task.base_points}pt - ${task.description}
-                                </div>
-                            </div>
-                            <div class="manage-task-actions">
-                                <button class="btn-small" onclick="toggleEditForm(${task.id})">✏️ 編集</button>
-                                <button class="btn-small delete" onclick="deleteTask(${task.id}, '${task.name}')">🗑️ 削除</button>
-                            </div>
-                        </div>
-                        <div id="editForm${task.id}" class="edit-form hidden">
-                            <div class="edit-form-row">
-                                <input type="text" id="editName${task.id}" value="${task.name}" placeholder="家事名">
-                                <input type="number" id="editPoints${task.id}" value="${task.base_points}" min="1" max="100" placeholder="ポイント">
-                            </div>
-                            <input type="text" id="editDescription${task.id}" value="${task.description}" placeholder="説明（任意）">
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn-small" onclick="saveTask(${task.id})">💾 保存</button>
-                                <button class="btn-small" onclick="toggleEditForm(${task.id})">❌ キャンセル</button>
-                            </div>
-                        </div>
-                    `;
-                    manageTasksList.appendChild(taskItem);
-                });
-            } catch (error) {
-                showNotification('管理用タスク一覧の読み込みに失敗しました', 'error');
-            }
-        }
-
-        // 編集フォームの表示/非表示を切り替え
-        function toggleEditForm(taskId) {
-            const editForm = document.getElementById(`editForm${taskId}`);
-            editForm.classList.toggle('hidden');
-        }
-
-        // タスクを保存
-        async function saveTask(taskId) {
-            const name = document.getElementById(`editName${taskId}`).value.trim();
-            const points = parseInt(document.getElementById(`editPoints${taskId}`).value);
-            const description = document.getElementById(`editDescription${taskId}`).value.trim();
-
-            if (!name || !points) {
-                showNotification('家事名とポイントは必須です', 'error');
-                return;
-            }
-
-            try {
-                const updatedTask = {
-                    name: name,
-                    base_points: points,
-                    description: description
+                // ボタンを無効化
+                button.disabled = true;
+                button.innerHTML = '記録中...';
+                
+                const logData = {
+                    task_id: parseInt(document.getElementById('taskSelect').value),
+                    user_id: document.getElementById('userSelect').value,
+                    load: parseFloat(document.getElementById('workLoad').value),
+                    health: parseFloat(document.getElementById('healthCondition').value)
                 };
-
-                await apiCall(`/tasks/${taskId}`, 'PUT', updatedTask);
-                showNotification('家事を更新しました！');
-
-                // 管理画面を更新
-                loadManageTasks();
-                // タスク選択肢も更新
-                loadTasksForSelect();
-
+                
+                const result = await apiCall('/logs', 'POST', logData);
+                
+                showNotification(`${result.log.task_name} を記録しました！+${result.log.points}pt`);
+                
+                // フォームをリセット
+                document.getElementById('workLoad').value = '1.0';
+                document.getElementById('healthCondition').value = '1.0';
+                
+                // スコアを更新
+                loadScores();
+                
             } catch (error) {
-                showNotification('家事の更新に失敗しました', 'error');
+                showNotification('家事の記録に失敗しました', 'error');
+            } finally {
+                // ボタンを有効化
+                button.disabled = false;
+                button.innerHTML = originalText;
             }
         }
 
-        // タスクを削除
-        async function deleteTask(taskId, taskName) {
-            if (!confirm(`「${taskName}」を削除しますか？`)) {
-                return;
-            }
-
+        // 履歴読み込み
+        async function loadHistory() {
             try {
-                await apiCall(`/tasks/${taskId}`, 'DELETE');
-                showNotification(`「${taskName}」を削除しました`);
-
-                // 管理画面を更新
-                loadManageTasks();
-                // タスク選択肢も更新
-                loadTasksForSelect();
-
-            } catch (error) {
-                showNotification('家事の削除に失敗しました', 'error');
-            }
-        }
-
-        // CSVエクスポート
-        async function exportTasksCSV() {
-            try {
-                const response = await fetch('/tasks/export');
-                if (!response.ok) {
-                    throw new Error('CSVエクスポートに失敗しました');
+                const response = await apiCall('/logs');
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '';
+                
+                if (response.logs && response.logs.length > 0) {
+                    response.logs.forEach(log => {
+                        const logEntry = document.createElement('div');
+                        logEntry.className = 'log-entry';
+                        
+                        const date = new Date(log.created_at);
+                        const dateStr = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                        const userIcon = log.user_id === 'wife' ? '👩 妻' : '👨 夫';
+                        
+                        logEntry.innerHTML = `
+                            <div class="log-date">${dateStr}</div>
+                            <div class="log-task">${log.task_name} (+${log.points}pt)</div>
+                            <div class="log-user">実行者: ${userIcon} (勤務負荷: ${log.load}, 体調: ${log.health})</div>
+                        `;
+                        historyList.appendChild(logEntry);
+                    });
+                } else {
+                    historyList.innerHTML = '<p style="text-align: center; color: #666;">まだ履歴がありません</p>';
                 }
-
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'housework_tasks.csv';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-
-                showNotification('CSVファイルをダウンロードしました！');
             } catch (error) {
-                showNotification('CSVエクスポートに失敗しました', 'error');
+                showNotification('履歴の読み込みに失敗しました', 'error');
             }
         }
 
-        // CSVファイルのインポート
-        async function handleCSVFile(event) {
-            const file = event.target.files[0];
-            if (!file)
+        // 通知表示
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初期データを読み込み
+            loadScores();
+            loadTasksForSelect();
+        });
+    </script>
+</body>
+</html>
