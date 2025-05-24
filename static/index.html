@@ -2,73 +2,984 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>🧼 家事ポイントゲーム - テスト版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧼 家事ポイントゲーム</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .tab { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
-        .content { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
-        .hidden { display: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .content {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .score-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .score-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-card.blue {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .score-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .score-card .points {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .score-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .task-form {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn.green {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-small {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-small.delete {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .btn-small.delete:hover {
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
+        }
+
+        .task-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .task-item {
+            background: white;
+            border: 2px solid #f1f3f4;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .task-points {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .task-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .edit-form {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #f1f3f4;
+        }
+
+        .edit-form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .edit-form input {
+            padding: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .edit-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .log-entry {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .log-date {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .log-task {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .log-user {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .status-indicator.connected {
+            background: #28a745;
+        }
+
+        .status-indicator.disconnected {
+            background: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .score-cards {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>🧼 家事ポイントゲーム - テスト版</h1>
-    
-    <div>
-        <button class="tab" onclick="showTab('dashboard')">📊 ダッシュボード</button>
-        <button class="tab" onclick="showTab('log')">📝 家事を記録</button>
+    <div class="container">
+        <div class="header">
+            <h1>🧼 家事ポイントゲーム</h1>
+            <p>勤務形態や体調に応じてポイントを補正し、週・月単位でスコアを集計するアプリ</p>
+            <div style="margin-top: 10px;">
+                <span class="status-indicator connected" id="statusIndicator"></span>
+                <span id="statusText">API接続中...</span>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">📊 ダッシュボード</button>
+            <button class="tab" onclick="showTab('log')">📝 家事を記録</button>
+            <button class="tab" onclick="showTab('tasks')">🏠 家事一覧</button>
+            <button class="tab" onclick="showTab('manage')">⚙️ 家事管理</button>
+            <button class="tab" onclick="showTab('history')">📈 履歴</button>
+        </div>
+
+        <!-- ダッシュボード -->
+        <div id="dashboard" class="content">
+            <div class="score-cards">
+                <div class="score-card">
+                    <h3>👩 妻のポイント</h3>
+                    <div class="points" id="wifePoints">-</div>
+                    <div class="label">今週の合計</div>
+                </div>
+                <div class="score-card blue">
+                    <h3>👨 夫のポイント</h3>
+                    <div class="points" id="husbandPoints">-</div>
+                    <div class="label">今週の合計</div>
+                </div>
+            </div>
+            <button class="btn" onclick="loadScores()">🔄 スコアを更新</button>
+        </div>
+
+        <!-- 家事を記録 -->
+        <div id="log" class="content hidden">
+            <div class="task-form">
+                <h2 style="margin-bottom: 20px;">✨ 家事を記録する</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskSelect">家事の種類</label>
+                        <select id="taskSelect">
+                            <!-- APIから動的に読み込み -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="userSelect">実行者</label>
+                        <select id="userSelect">
+                            <option value="wife">👩 妻</option>
+                            <option value="husband">👨 夫</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="workLoad">勤務負荷 (1.0-2.0)</label>
+                        <input type="number" id="workLoad" value="1.0" min="1.0" max="2.0" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="healthCondition">体調 (0.5-1.0)</label>
+                        <input type="number" id="healthCondition" value="1.0" min="0.5" max="1.0" step="0.1">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button class="btn" onclick="logTask()" id="logButton">
+                        🎯 家事を記録する
+                    </button>
+                    <button class="btn green" onclick="refreshTaskSelect()">
+                        🔄 選択肢を更新
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 家事一覧 -->
+        <div id="tasks" class="content hidden">
+            <h2 style="margin-bottom: 20px;">🏠 家事一覧</h2>
+            
+            <!-- 検索ボックス -->
+            <input type="text" id="taskSearchBox" class="search-box" placeholder="🔍 家事名や説明で検索..." onkeyup="filterTasks()">
+            
+            <div class="task-list" id="tasksList">
+                <!-- 動的に読み込み -->
+            </div>
+            <button class="btn" onclick="loadTasks()">🔄 一覧を更新</button>
+        </div>
+
+        <!-- 家事管理 -->
+        <div id="manage" class="content hidden">
+            <h2 style="margin-bottom: 20px;">⚙️ 家事管理</h2>
+            
+            <!-- CSV機能 -->
+            <div class="task-form">
+                <h3 style="margin-bottom: 15px;">📤 CSV エクスポート・インポート</h3>
+                <div class="form-row">
+                    <button class="btn" onclick="exportTasksCSV()">📥 CSV エクスポート</button>
+                    <div class="form-group">
+                        <label for="csvFile">CSVファイルを選択</label>
+                        <input type="file" id="csvFile" accept=".csv" onchange="handleCSVFile(event)">
+                    </div>
+                </div>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                    CSVフォーマット: name, base_points, description
+                </p>
+            </div>
+            
+            <div class="task-form">
+                <h3 style="margin-bottom: 15px;">➕ 新しい家事を追加</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="newTaskName">家事名</label>
+                        <input type="text" id="newTaskName" placeholder="例: お風呂掃除">
+                    </div>
+                    <div class="form-group">
+                        <label for="newTaskPoints">ポイント</label>
+                        <input type="number" id="newTaskPoints" min="1" max="100" placeholder="例: 15">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="newTaskDescription">説明（任意）</label>
+                    <input type="text" id="newTaskDescription" placeholder="例: 浴槽とタイルの掃除">
+                </div>
+                <button class="btn" onclick="addNewTask()">➕ 家事を追加</button>
+            </div>
+        </div>
+
+        <!-- 履歴 -->
+        <div id="history" class="content hidden">
+            <h2 style="margin-bottom: 20px;">📈 家事履歴</h2>
+            <div id="historyList">
+                <!-- 動的に読み込み -->
+            </div>
+            <button class="btn" onclick="loadHistory()">🔄 履歴を更新</button>
+        </div>
     </div>
 
-    <div id="dashboard" class="content">
-        <h2>ダッシュボード</h2>
-        <p>妻のポイント: <span id="wifePoints">0</span></p>
-        <p>夫のポイント: <span id="husbandPoints">0</span></p>
-    </div>
-
-    <div id="log" class="content hidden">
-        <h2>家事を記録</h2>
-        <select id="taskSelect">
-            <option value="">選択してください</option>
-        </select>
-        <button onclick="loadTasks()">タスク読み込み</button>
+    <div id="notification" class="notification">
+        テスト通知
     </div>
 
     <script>
-        // タブ切り替え機能
-        function showTab(tabName) {
-            // 全コンテンツを非表示
-            document.querySelectorAll('.content').forEach(el => el.classList.add('hidden'));
-            // 選択されたコンテンツを表示
-            document.getElementById(tabName).classList.remove('hidden');
-            console.log('Tab switched to:', tabName);
+        // グローバル変数
+        let currentTab = 'dashboard';
+        let isConnected = false;
+        let allTasks = [];
+
+        // API接続状態を更新
+        function updateConnectionStatus(connected) {
+            isConnected = connected;
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            if (connected) {
+                indicator.className = 'status-indicator connected';
+                statusText.textContent = 'API接続済み';
+            } else {
+                indicator.className = 'status-indicator disconnected';
+                statusText.textContent = 'API接続エラー';
+            }
         }
 
-        // API呼び出し
+        // タブ切り替え
+        function showTab(tabName) {
+            // すべてのコンテンツを非表示
+            document.querySelectorAll('.content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // すべてのタブからactiveクラスを削除
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 選択されたコンテンツを表示
+            document.getElementById(tabName).classList.remove('hidden');
+            
+            // クリックされたタブにactiveクラスを追加
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+
+            // タブ切り替え時にデータを読み込み
+            switch(tabName) {
+                case 'dashboard':
+                    loadScores();
+                    break;
+                case 'tasks':
+                    loadTasks();
+                    break;
+                case 'log':
+                    loadTasksForSelect();
+                    break;
+                case 'history':
+                    loadHistory();
+                    break;
+            }
+        }
+
+        // API関数群
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(endpoint, options);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                updateConnectionStatus(true);
+                return await response.json();
+            } catch (error) {
+                console.error('API呼び出しエラー:', error);
+                updateConnectionStatus(false);
+                throw error;
+            }
+        }
+
+        // スコア読み込み
+        async function loadScores() {
+            try {
+                const scores = await apiCall('/scores/weekly');
+                document.getElementById('wifePoints').textContent = scores.wife_points;
+                document.getElementById('husbandPoints').textContent = scores.husband_points;
+            } catch (error) {
+                showNotification('スコアの読み込みに失敗しました', 'error');
+            }
+        }
+
+        // タスク一覧読み込み
         async function loadTasks() {
             try {
-                const response = await fetch('/tasks');
-                const data = await response.json();
-                console.log('Tasks loaded:', data);
+                const response = await apiCall('/tasks');
+                allTasks = response.tasks || [];
+                displayTasks(allTasks);
+            } catch (error) {
+                showNotification('タスク一覧の読み込みに失敗しました', 'error');
+            }
+        }
+
+        // タスクを表示する関数
+        function displayTasks(tasks) {
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '';
+            
+            if (tasks && tasks.length > 0) {
+                tasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'task-item';
+                    taskItem.setAttribute('data-task-id', task.id);
+                    taskItem.innerHTML = `
+                        <div class="task-header">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-points">${task.base_points}pt</div>
+                        </div>
+                        <div class="task-details">
+                            説明: ${task.description}
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn-small" onclick="toggleEditForm(${task.id})">✏️ 編集</button>
+                            <button class="btn-small delete" onclick="deleteTask(${task.id}, '${task.name.replace(/'/g, "\\'")}')">🗑️ 削除</button>
+                        </div>
+                        <div id="editForm${task.id}" class="edit-form hidden">
+                            <div class="edit-form-row">
+                                <input type="text" id="editName${task.id}" value="${task.name}" placeholder="家事名">
+                                <input type="number" id="editPoints${task.id}" value="${task.base_points}" min="1" max="100" placeholder="ポイント">
+                            </div>
+                            <input type="text" id="editDescription${task.id}" value="${task.description}" placeholder="説明（任意）">
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-small" onclick="saveTask(${task.id})">💾 保存</button>
+                                <button class="btn-small" onclick="toggleEditForm(${task.id})">❌ キャンセル</button>
+                            </div>
+                        </div>
+                    `;
+                    tasksList.appendChild(taskItem);
+                });
+            } else {
+                tasksList.innerHTML = '<p style="text-align: center; color: #666;">家事が登録されていません</p>';
+            }
+        }
+
+        // 検索フィルター機能
+        function filterTasks() {
+            const searchTerm = document.getElementById('taskSearchBox').value.toLowerCase();
+            
+            if (searchTerm === '') {
+                displayTasks(allTasks);
+            } else {
+                const filteredTasks = allTasks.filter(task => 
+                    task.name.toLowerCase().includes(searchTerm) || 
+                    task.description.toLowerCase().includes(searchTerm)
+                );
+                displayTasks(filteredTasks);
+            }
+        }
+
+        // 編集フォームの表示/非表示を切り替え
+        function toggleEditForm(taskId) {
+            const editForm = document.getElementById(`editForm${taskId}`);
+            editForm.classList.toggle('hidden');
+        }
+
+        // タスクを保存
+        async function saveTask(taskId) {
+            const name = document.getElementById(`editName${taskId}`).value.trim();
+            const points = parseInt(document.getElementById(`editPoints${taskId}`).value);
+            const description = document.getElementById(`editDescription${taskId}`).value.trim();
+
+            if (!name || !points) {
+                showNotification('家事名とポイントは必須です', 'error');
+                return;
+            }
+
+            try {
+                const updatedTask = {
+                    name: name,
+                    base_points: points,
+                    description: description
+                };
+
+                await apiCall(`/tasks/${taskId}`, 'PUT', updatedTask);
+                showNotification('家事を更新しました！');
+
+                // 一覧を更新
+                loadTasks();
+                // タスク選択肢も更新
+                loadTasksForSelect();
+
+            } catch (error) {
+                showNotification('家事の更新に失敗しました', 'error');
+            }
+        }
+
+        // タスクを削除
+        async function deleteTask(taskId, taskName) {
+            if (!confirm(`「${taskName}」を削除しますか？`)) {
+                return;
+            }
+
+            try {
+                await apiCall(`/tasks/${taskId}`, 'DELETE');
+                showNotification(`「${taskName}」を削除しました`);
+
+                // 一覧を更新
+                loadTasks();
+                // タスク選択肢も更新
+                loadTasksForSelect();
+
+            } catch (error) {
+                showNotification('家事の削除に失敗しました', 'error');
+            }
+        }
+
+        // 家事記録用のタスク選択肢を読み込み
+        async function loadTasksForSelect() {
+            try {
+                const response = await apiCall('/tasks');
+                const taskSelect = document.getElementById('taskSelect');
+                taskSelect.innerHTML = '';
                 
-                const select = document.getElementById('taskSelect');
-                select.innerHTML = '<option value="">選択してください</option>';
-                
-                if (data.tasks) {
-                    data.tasks.forEach(task => {
+                if (response.tasks && response.tasks.length > 0) {
+                    response.tasks.forEach(task => {
                         const option = document.createElement('option');
                         option.value = task.id;
                         option.textContent = `${task.name} (${task.base_points}pt)`;
-                        select.appendChild(option);
+                        taskSelect.appendChild(option);
                     });
+                } else {
+                    taskSelect.innerHTML = '<option value="">家事が登録されていません</option>';
                 }
             } catch (error) {
-                console.error('Error:', error);
+                showNotification('タスク選択肢の読み込みに失敗しました', 'error');
             }
+        }
+
+        // 手動で選択肢を更新
+        function refreshTaskSelect() {
+            loadTasksForSelect();
+            showNotification('選択肢を更新しました');
+        }
+
+        // 新しい家事を追加
+        async function addNewTask() {
+            const name = document.getElementById('newTaskName').value.trim();
+            const points = parseInt(document.getElementById('newTaskPoints').value);
+            const description = document.getElementById('newTaskDescription').value.trim();
+
+            if (!name || !points) {
+                showNotification('家事名とポイントは必須です', 'error');
+                return;
+            }
+
+            try {
+                const newTask = {
+                    name: name,
+                    base_points: points,
+                    description: description
+                };
+
+                await apiCall('/tasks', 'POST', newTask);
+                showNotification('新しい家事を追加しました！');
+
+                // フォームをクリア
+                document.getElementById('newTaskName').value = '';
+                document.getElementById('newTaskPoints').value = '';
+                document.getElementById('newTaskDescription').value = '';
+
+                // 全ての関連する表示を更新
+                loadTasks();
+                loadTasksForSelect();
+
+            } catch (error) {
+                showNotification('家事の追加に失敗しました', 'error');
+            }
+        }
+
+        // 家事記録
+        async function logTask() {
+            const button = document.getElementById('logButton');
+            const originalText = button.innerHTML;
+            
+            try {
+                // ボタンを無効化
+                button.disabled = true;
+                button.innerHTML = '記録中...';
+                
+                const logData = {
+                    task_id: parseInt(document.getElementById('taskSelect').value),
+                    user_id: document.getElementById('userSelect').value,
+                    load: parseFloat(document.getElementById('workLoad').value),
+                    health: parseFloat(document.getElementById('healthCondition').value)
+                };
+                
+                const result = await apiCall('/logs', 'POST', logData);
+                
+                showNotification(`${result.log.task_name} を記録しました！+${result.log.points}pt`);
+                
+                // フォームをリセット
+                document.getElementById('workLoad').value = '1.0';
+                document.getElementById('healthCondition').value = '1.0';
+                
+                // スコアを更新
+                loadScores();
+                
+            } catch (error) {
+                showNotification('家事の記録に失敗しました', 'error');
+            } finally {
+                // ボタンを有効化
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        // 履歴読み込み
+        async function loadHistory() {
+            try {
+                const response = await apiCall('/logs');
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '';
+                
+                if (response.logs && response.logs.length > 0) {
+                    response.logs.forEach(log => {
+                        const logEntry = document.createElement('div');
+                        logEntry.className = 'log-entry';
+                        
+                        const date = new Date(log.created_at);
+                        const dateStr = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                        const userIcon = log.user_id === 'wife' ? '👩 妻' : '👨 夫';
+                        
+                        logEntry.innerHTML = `
+                            <div class="log-date">${dateStr}</div>
+                            <div class="log-task">${log.task_name} (+${log.points}pt)</div>
+                            <div class="log-user">実行者: ${userIcon} (勤務負荷: ${log.load}, 体調: ${log.health})</div>
+                        `;
+                        historyList.appendChild(logEntry);
+                    });
+                } else {
+                    historyList.innerHTML = '<p style="text-align: center; color: #666;">まだ履歴がありません</p>';
+                }
+            } catch (error) {
+                showNotification('履歴の読み込みに失敗しました', 'error');
+            }
+        }
+
+        // CSVエクスポート
+        async function exportTasksCSV() {
+            try {
+                const response = await fetch('/tasks/export');
+                if (!response.ok) {
+                    throw new Error('CSVエクスポートに失敗しました');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'housework_tasks.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showNotification('CSVファイルをダウンロードしました！');
+            } catch (error) {
+                showNotification('CSVエクスポートに失敗しました', 'error');
+            }
+        }
+
+        // CSVファイルのインポート
+        async function handleCSVFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showNotification('CSVファイルを選択してください', 'error');
+                return;
+            }
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const response = await fetch('/tasks/import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/octet-stream',
+                    },
+                    body: arrayBuffer
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    showNotification(`インポートエラー: ${result.error}`, 'error');
+                } else {
+                    let message = result.message;
+                    if (result.errors && result.errors.length > 0) {
+                        message += `\n警告: ${result.errors.length}件のエラーがありました`;
+                        console.log('インポートエラー詳細:', result.errors);
+                    }
+                    showNotification(message);
+
+                    // 全ての関連する表示を更新
+                    loadTasks();
+                    loadTasksForSelect();
+                }
+
+                // ファイル選択をクリア
+                event.target.value = '';
+
+            } catch (error) {
+                showNotification('CSVファイルの処理に失敗しました', 'error');
+            }
+        }
+
+        // 通知表示
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
         }
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded');
-            loadTasks();
+            // 初期データを読み込み
+            loadScores();
+            loadTasksForSelect();
         });
     </script>
 </body>
