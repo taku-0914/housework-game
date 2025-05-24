@@ -1,22 +1,24 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
-from typing import Optional
-import datetime
-import io
-import csv
-from collections import defaultdict
+from datetime import datetime, date
+from typing import List, Optional, Dict
 import calendar
 
 app = FastAPI()
 
-# 静的ファイル配信
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# CORS設定
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/")
-async def read_index():
-    return FileResponse('static/index.html')
+# 静的ファイルの設定
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # データモデル
 class TaskCreate(BaseModel):
@@ -24,323 +26,242 @@ class TaskCreate(BaseModel):
     base_points: int
     description: Optional[str] = ""
 
+class Task(TaskCreate):
+    id: int
+
 class LogCreate(BaseModel):
     task_id: int
-    user_id: str
+    user_id: str  # "wife" or "husband"
     load: float = 1.0
     health: float = 1.0
 
-# データストレージ
-tasks = [
-    {"id": 1, "name": "食器洗い", "base_points": 10, "description": "食器を洗う"},
-    {"id": 2, "name": "洗濯", "base_points": 15, "description": "洗濯をする"},
-    {"id": 3, "name": "掃除", "base_points": 20, "description": "部屋を掃除する"},
-    {"id": 4, "name": "料理", "base_points": 25, "description": "料理を作る"}
+class Log(BaseModel):
+    id: int
+    task_id: int
+    task_name: str
+    user_id: str
+    points: int
+    load: float
+    health: float
+    created_at: str
+    date: str
+    time: str
+
+# インメモリデータストレージ
+tasks_db: List[Task] = [
+    Task(id=1, name="掃除機かけ", base_points=20, description="リビング・寝室の掃除"),
+    Task(id=2, name="風呂掃除", base_points=15, description="浴槽・床・壁の掃除"),
+    Task(id=3, name="トイレ掃除", base_points=10, description="便器・床の掃除"),
+    Task(id=4, name="洗濯", base_points=15, description="洗濯機を回す・干す"),
+    Task(id=5, name="料理", base_points=30, description="朝食・昼食・夕食の準備"),
+    Task(id=6, name="食器洗い", base_points=10, description="食後の片付け"),
+    Task(id=7, name="ゴミ出し", base_points=5, description="ゴミをまとめて出す"),
+    Task(id=8, name="買い物", base_points=25, description="食材・日用品の買い出し"),
 ]
 
-logs = []
-scores = {"wife": 0, "husband": 0}
+logs_db: List[Log] = []
+next_task_id = len(tasks_db) + 1
+next_log_id = 1
 
-def get_next_task_id():
-    if not tasks:
-        return 1
-    return max(task["id"] for task in tasks) + 1
+# ルートエンドポイント
+@app.get("/")
+def read_root():
+    return {"message": "家事ポイントゲーム API"}
 
-# 既存のAPIエンドポイント
+# タスク管理エンドポイント
 @app.get("/tasks")
-async def get_tasks():
-    return {"tasks": tasks}
+def get_tasks():
+    return {"tasks": tasks_db}
 
 @app.post("/tasks")
-async def create_task(task: TaskCreate):
-    new_id = get_next_task_id()
-    new_task = {
-        "id": new_id,
-        "name": task.name,
-        "base_points": task.base_points,
-        "description": task.description
-    }
-    tasks.append(new_task)
+def create_task(task: TaskCreate):
+    global next_task_id
+    new_task = Task(
+        id=next_task_id,
+        name=task.name,
+        base_points=task.base_points,
+        description=task.description
+    )
+    tasks_db.append(new_task)
+    next_task_id += 1
     return new_task
 
 @app.put("/tasks/{task_id}")
-async def update_task(task_id: int, task: TaskCreate):
-    for i, t in enumerate(tasks):
-        if t["id"] == task_id:
-            tasks[i].update({
-                "name": task.name,
-                "base_points": task.base_points,
-                "description": task.description
-            })
-            return tasks[i]
-    raise HTTPException(status_code=404, detail="タスクが見つかりません")
+def update_task(task_id: int, task: TaskCreate):
+    for i, t in enumerate(tasks_db):
+        if t.id == task_id:
+            tasks_db[i] = Task(
+                id=task_id,
+                name=task.name,
+                base_points=task.base_points,
+                description=task.description
+            )
+            return tasks_db[i]
+    raise HTTPException(status_code=404, detail="Task not found")
 
 @app.delete("/tasks/{task_id}")
-async def delete_task(task_id: int):
-    for i, t in enumerate(tasks):
-        if t["id"] == task_id:
-            deleted_task = tasks.pop(i)
-            return {"message": f"タスク '{deleted_task['name']}' を削除しました"}
-    raise HTTPException(status_code=404, detail="タスクが見つかりません")
+def delete_task(task_id: int):
+    for i, t in enumerate(tasks_db):
+        if t.id == task_id:
+            tasks_db.pop(i)
+            return {"message": "Task deleted successfully"}
+    raise HTTPException(status_code=404, detail="Task not found")
+
+# ログ管理エンドポイント
+@app.get("/logs")
+def get_logs():
+    return {"logs": logs_db}
 
 @app.post("/logs")
-async def create_log(log: LogCreate):
-    # タスクを探す
+def create_log(log: LogCreate):
+    global next_log_id
+    
+    # タスクを検索
     task = None
-    for t in tasks:
-        if t["id"] == log.task_id:
+    for t in tasks_db:
+        if t.id == log.task_id:
             task = t
             break
     
     if not task:
-        raise HTTPException(status_code=404, detail="タスクが見つかりません")
+        raise HTTPException(status_code=404, detail="Task not found")
     
     # ポイント計算
-    points = int(task["base_points"] * log.load * log.health)
+    points = int(task.base_points * log.load * log.health)
     
-    # ログ作成（日本時間で記録）
-    now = datetime.datetime.now()
-    new_log = {
-        "id": len(logs) + 1,
-        "task_id": log.task_id,
-        "task_name": task["name"],
-        "user_id": log.user_id,
-        "points": points,
-        "load": log.load,
-        "health": log.health,
-        "created_at": now.isoformat(),
-        "date": now.strftime("%Y-%m-%d"),  # 日付のみ
-        "time": now.strftime("%H:%M")      # 時刻のみ
-    }
-    logs.append(new_log)
+    # 現在時刻
+    now = datetime.now()
     
-    # スコア更新
-    scores[log.user_id] += points
+    new_log = Log(
+        id=next_log_id,
+        task_id=log.task_id,
+        task_name=task.name,
+        user_id=log.user_id,
+        points=points,
+        load=log.load,
+        health=log.health,
+        created_at=now.isoformat(),
+        date=now.strftime("%Y-%m-%d"),
+        time=now.strftime("%H:%M")
+    )
+    
+    logs_db.append(new_log)
+    next_log_id += 1
     
     return {
-        "message": "記録しました",
         "log": new_log,
-        "total_points": scores[log.user_id]
+        "message": f"{log.user_id}が{task.name}を完了しました！ {points}ポイント獲得！"
     }
 
+# スコア管理エンドポイント
 @app.get("/scores/weekly")
-async def get_weekly_scores():
+def get_weekly_scores():
+    wife_score = sum(log.points for log in logs_db if log.user_id == "wife")
+    husband_score = sum(log.points for log in logs_db if log.user_id == "husband")
+    
     return {
-        "wife_points": scores["wife"],
-        "husband_points": scores["husband"],
-        "period": "今週"
+        "wife": wife_score,
+        "husband": husband_score,
+        "total": wife_score + husband_score
     }
 
-@app.get("/logs")
-async def get_logs():
-    return {"logs": sorted(logs, key=lambda x: x["created_at"], reverse=True)}
-
-# 🆕 カレンダー機能のAPIエンドポイント
-
+# カレンダー関連エンドポイント
 @app.get("/calendar/{year}/{month}")
-async def get_calendar_data(year: int, month: int):
-    """指定月のカレンダーデータを取得"""
-    try:
-        # 指定月のログをフィルタリング
-        target_month = f"{year:04d}-{month:02d}"
-        monthly_logs = [log for log in logs if log["date"].startswith(target_month)]
+def get_calendar_data(year: int, month: int):
+    # 月の日数を取得
+    _, days_in_month = calendar.monthrange(year, month)
+    
+    # 月の最初の日の曜日を取得
+    first_weekday = calendar.monthrange(year, month)[0]
+    
+    # 日別のデータを集計
+    daily_data = {}
+    for day in range(1, days_in_month + 1):
+        date_str = f"{year}-{month:02d}-{day:02d}"
+        daily_logs = [log for log in logs_db if log.date == date_str]
         
-        # 日付別にグループ化
-        daily_data = defaultdict(lambda: {"logs": [], "total_points": 0, "wife_points": 0, "husband_points": 0})
-        
-        for log in monthly_logs:
-            date = log["date"]
-            daily_data[date]["logs"].append(log)
-            daily_data[date]["total_points"] += log["points"]
-            if log["user_id"] == "wife":
-                daily_data[date]["wife_points"] += log["points"]
-            elif log["user_id"] == "husband":
-                daily_data[date]["husband_points"] += log["points"]
-        
-        # カレンダー情報を生成
-        cal = calendar.Calendar(firstweekday=6)  # 日曜日始まり
-        month_days = cal.monthdayscalendar(year, month)
-        
-        # 月の日数
-        _, last_day = calendar.monthrange(year, month)
-        
-        return {
-            "year": year,
-            "month": month,
-            "month_name": calendar.month_name[month],
-            "month_days": month_days,
-            "daily_data": dict(daily_data),
-            "total_logs": len(monthly_logs),
-            "month_summary": {
-                "total_points": sum(log["points"] for log in monthly_logs),
-                "wife_points": sum(log["points"] for log in monthly_logs if log["user_id"] == "wife"),
-                "husband_points": sum(log["points"] for log in monthly_logs if log["user_id"] == "husband"),
-                "total_tasks": len(monthly_logs)
-            }
+        daily_data[day] = {
+            "date": date_str,
+            "total_points": sum(log.points for log in daily_logs),
+            "wife_points": sum(log.points for log in daily_logs if log.user_id == "wife"),
+            "husband_points": sum(log.points for log in daily_logs if log.user_id == "husband"),
+            "task_count": len(daily_logs)
         }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"カレンダーデータの取得に失敗しました: {str(e)}")
+    
+    # 月全体の統計
+    month_str = f"{year}-{month:02d}"
+    month_logs = [log for log in logs_db if log.date.startswith(month_str)]
+    
+    return {
+        "year": year,
+        "month": month,
+        "days_in_month": days_in_month,
+        "first_weekday": first_weekday,
+        "daily_data": daily_data,
+        "monthly_stats": {
+            "total_points": sum(log.points for log in month_logs),
+            "wife_points": sum(log.points for log in month_logs if log.user_id == "wife"),
+            "husband_points": sum(log.points for log in month_logs if log.user_id == "husband"),
+            "total_tasks": len(month_logs)
+        }
+    }
 
-@app.get("/calendar/day/{date}")
-async def get_day_details(date: str):
-    """特定日の詳細データを取得"""
-    try:
-        # 指定日のログを取得
-        day_logs = [log for log in logs if log["date"] == date]
-        
-        # ユーザー別に集計
-        wife_logs = [log for log in day_logs if log["user_id"] == "wife"]
-        husband_logs = [log for log in day_logs if log["user_id"] == "husband"]
-        
-        return {
-            "date": date,
-            "logs": sorted(day_logs, key=lambda x: x["time"]),
-            "summary": {
-                "total_logs": len(day_logs),
-                "total_points": sum(log["points"] for log in day_logs),
-                "wife": {
-                    "logs": len(wife_logs),
-                    "points": sum(log["points"] for log in wife_logs)
-                },
-                "husband": {
-                    "logs": len(husband_logs),
-                    "points": sum(log["points"] for log in husband_logs)
-                }
-            }
+@app.get("/calendar/day/{date_str}")
+def get_day_details(date_str: str):
+    daily_logs = [log for log in logs_db if log.date == date_str]
+    
+    return {
+        "date": date_str,
+        "logs": daily_logs,
+        "summary": {
+            "total_points": sum(log.points for log in daily_logs),
+            "wife_points": sum(log.points for log in daily_logs if log.user_id == "wife"),
+            "husband_points": sum(log.points for log in daily_logs if log.user_id == "husband"),
+            "task_count": len(daily_logs)
         }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"日別データの取得に失敗しました: {str(e)}")
+    }
 
 @app.get("/calendar/stats/{year}")
-async def get_yearly_stats(year: int):
-    """年間統計を取得"""
-    try:
-        # 指定年のログをフィルタリング
-        yearly_logs = [log for log in logs if log["date"].startswith(str(year))]
+def get_yearly_stats(year: int):
+    year_str = str(year)
+    year_logs = [log for log in logs_db if log.date.startswith(year_str)]
+    
+    monthly_stats = {}
+    for month in range(1, 13):
+        month_str = f"{year}-{month:02d}"
+        month_logs = [log for log in year_logs if log.date.startswith(month_str)]
         
-        # 月別集計
-        monthly_stats = defaultdict(lambda: {"wife_points": 0, "husband_points": 0, "total_tasks": 0})
-        
-        for log in yearly_logs:
-            month = log["date"][:7]  # YYYY-MM
-            if log["user_id"] == "wife":
-                monthly_stats[month]["wife_points"] += log["points"]
-            elif log["user_id"] == "husband":
-                monthly_stats[month]["husband_points"] += log["points"]
-            monthly_stats[month]["total_tasks"] += 1
-        
-        return {
-            "year": year,
-            "total_logs": len(yearly_logs),
-            "total_points": sum(log["points"] for log in yearly_logs),
-            "monthly_stats": dict(monthly_stats),
-            "user_totals": {
-                "wife": sum(log["points"] for log in yearly_logs if log["user_id"] == "wife"),
-                "husband": sum(log["points"] for log in yearly_logs if log["user_id"] == "husband")
-            }
+        monthly_stats[month] = {
+            "total_points": sum(log.points for log in month_logs),
+            "wife_points": sum(log.points for log in month_logs if log.user_id == "wife"),
+            "husband_points": sum(log.points for log in month_logs if log.user_id == "husband"),
+            "task_count": len(month_logs)
         }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"年間統計の取得に失敗しました: {str(e)}")
-
-# CSV機能
-@app.get("/tasks/export")
-async def export_tasks_csv():
-    """家事タスクをCSV形式でエクスポート"""
-    try:
-        output = io.StringIO()
-        writer = csv.writer(output)
-        
-        # ヘッダー行
-        writer.writerow(["name", "base_points", "description"])
-        
-        # データ行
-        for task in tasks:
-            writer.writerow([task["name"], task["base_points"], task["description"]])
-        
-        output.seek(0)
-        
-        return StreamingResponse(
-            io.BytesIO(output.getvalue().encode('utf-8-sig')),
-            media_type="text/csv",
-            headers={"Content-Disposition": "attachment; filename=housework_tasks.csv"}
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"CSV エクスポートエラー: {str(e)}")
-
-@app.post("/tasks/import")
-async def import_tasks_csv(request: Request):
-    """CSVファイルから家事タスクをインポート"""
-    try:
-        body = await request.body()
-        
-        # バイトデータを文字列に変換
-        try:
-            csv_content = body.decode('utf-8-sig')
-        except:
-            csv_content = body.decode('utf-8')
-        
-        csv_file = io.StringIO(csv_content)
-        reader = csv.DictReader(csv_file)
-        
-        imported_count = 0
-        errors = []
-        
-        for row_num, row in enumerate(reader, start=2):
-            try:
-                # 必須フィールドのチェック
-                if not row.get('name') or not row.get('base_points'):
-                    errors.append(f"行{row_num}: name と base_points は必須です")
-                    continue
-                
-                # ポイントの数値チェック
-                try:
-                    points = int(row['base_points'])
-                    if points <= 0:
-                        errors.append(f"行{row_num}: base_points は正の整数である必要があります")
-                        continue
-                except ValueError:
-                    errors.append(f"行{row_num}: base_points は数値である必要があります")
-                    continue
-                
-                # 新しいIDを生成
-                new_id = get_next_task_id()
-                
-                # タスクを追加
-                new_task = {
-                    "id": new_id,
-                    "name": row['name'].strip(),
-                    "base_points": points,
-                    "description": row.get('description', '').strip()
-                }
-                tasks.append(new_task)
-                imported_count += 1
-                
-            except Exception as e:
-                errors.append(f"行{row_num}: {str(e)}")
-        
-        return {
-            "message": f"{imported_count}件のタスクをインポートしました",
-            "imported_count": imported_count,
-            "errors": errors
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"CSVファイルの処理中にエラーが発生しました: {str(e)}")
-
-@app.get("/debug")
-async def debug():
+    
     return {
-        "tasks_count": len(tasks),
-        "logs_count": len(logs),
-        "scores": scores,
-        "recent_logs": logs[-5:] if logs else [],
-        "status": "OK"
+        "year": year,
+        "yearly_total": {
+            "total_points": sum(log.points for log in year_logs),
+            "wife_points": sum(log.points for log in year_logs if log.user_id == "wife"),
+            "husband_points": sum(log.points for log in year_logs if log.user_id == "husband"),
+            "task_count": len(year_logs)
+        },
+        "monthly_stats": monthly_stats
     }
 
-# ヘルスチェック
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
+# CSV機能（基本的な実装）
+@app.get("/tasks/export")
+def export_tasks():
+    csv_content = "id,name,base_points,description\n"
+    for task in tasks_db:
+        csv_content += f"{task.id},{task.name},{task.base_points},{task.description}\n"
+    
+    return {"csv": csv_content}
+
+@app.post("/tasks/import")
+def import_tasks(csv_data: Dict[str, str]):
+    # 簡単な実装例
+    return {"message": "CSV import functionality to be implemented"}
 
 if __name__ == "__main__":
     import uvicorn
