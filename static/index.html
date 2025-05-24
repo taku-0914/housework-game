@@ -12,82 +12,185 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
+            padding: 20px;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-        .header {
+        h1 {
             text-align: center;
+            color: #333;
             margin-bottom: 30px;
-            color: white;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
+        /* タブ */
         .tabs {
             display: flex;
-            gap: 8px;
+            justify-content: center;
             margin-bottom: 30px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 10px;
-            backdrop-filter: blur(10px);
-            flex-wrap: wrap;
+            border-bottom: 2px solid #e0e0e0;
         }
 
         .tab {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px 8px;
-            text-align: center;
+            padding: 10px 20px;
+            margin: 0 5px;
+            background: none;
             border: none;
-            border-radius: 10px;
-            background: transparent;
-            color: white;
-            font-size: 0.9rem;
+            color: #666;
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-size: 16px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
         }
 
         .tab.active {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: bold;
         }
 
-        .tab:hover:not(.active) {
-            background: rgba(255,255,255,0.1);
+        .tab:hover {
+            color: #667eea;
         }
 
+        /* コンテンツ */
         .content {
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
+            display: none;
+            animation: fadeIn 0.3s;
         }
 
-        /* カレンダー専用スタイル */
+        .content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ダッシュボード */
+        .score-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .score-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-card.wife {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+        }
+
+        .score-card.husband {
+            background: linear-gradient(135deg, #4dabf7 0%, #69c0ff 100%);
+        }
+
+        .score-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .score-card .points {
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        /* フォーム */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"] {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .button-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* カレンダー */
         .calendar-container {
-            max-width: 900px;
-            margin: 0 auto;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
         }
 
         .calendar-header {
@@ -95,160 +198,105 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding: 0 10px;
         }
 
         .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
             background: #667eea;
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
+            padding: 8px 15px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            font-size: 14px;
         }
 
-        .calendar-nav:hover {
-            background: #5a6fd8;
-            transform: translateY(-1px);
+        .calendar-nav button:hover {
+            background: #764ba2;
         }
 
-        .calendar-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #333;
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
         }
 
-        .calendar {
-            width: 100%;
-            border-collapse: collapse;
+        .calendar-cell {
+            aspect-ratio: 1;
+            border: 1px solid #e0e0e0;
             background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .calendar th {
-            background: #667eea;
-            color: white;
-            padding: 15px 5px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .calendar td {
-            height: 80px;
-            width: 14.28%;
-            border: 1px solid #e9ecef;
-            vertical-align: top;
-            padding: 8px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .calendar td:hover {
-            background: #f8f9fa;
-        }
-
-        .calendar-day {
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 4px;
-        }
-
-        .calendar-day.other-month {
-            color: #ccc;
-        }
-
-        .calendar-day.today {
-            background: #667eea;
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            cursor: pointer;
+            position: relative;
+            min-height: 60px;
+            border-radius: 5px;
+            transition: all 0.3s;
         }
 
-        .calendar-points {
-            font-size: 0.7rem;
+        .calendar-cell.header {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+            cursor: default;
+        }
+
+        .calendar-cell.empty {
+            background: #f8f9fa;
+            cursor: default;
+        }
+
+        .calendar-cell.has-data {
+            background: #e3f2fd;
+        }
+
+        .calendar-cell.has-data:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-cell .date {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .calendar-cell .points {
+            font-size: 12px;
             color: #666;
             margin-top: 2px;
         }
 
-        .calendar-points.has-activity {
-            background: #e8f4f8;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-
-        .calendar-points.high {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .calendar-points.medium {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .calendar-points.low {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .month-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .summary-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .summary-card h4 {
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .summary-card .value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        /* 日別詳細モーダル */
+        /* モーダル */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
         }
 
         .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 15px;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 500px;
             width: 90%;
-            max-width: 600px;
-            max-height: 80%;
+            max-height: 80vh;
             overflow-y: auto;
         }
 
@@ -257,278 +305,829 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e9ecef;
         }
 
         .modal-close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
+            background: none;
+            border: none;
+            font-size: 1.5em;
             cursor: pointer;
-            line-height: 1;
+            color: #999;
         }
 
-        .modal-close:hover {
-            color: #333;
+        /* ログ */
+        .log-list {
+            margin-top: 20px;
         }
 
-        .day-log-item {
-            background: #f8f9fa;
-            padding: 12px;
+        .log-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
             margin-bottom: 10px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
+            background: #f8f9fa;
         }
 
-        .day-log-time {
-            font-size: 0.8rem;
+        .log-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .log-item-time {
             color: #666;
-            margin-bottom: 4px;
+            font-size: 0.9em;
         }
 
-        .day-log-task {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .day-log-user {
-            font-size: 0.9rem;
+        .log-item-points {
+            font-weight: bold;
             color: #667eea;
         }
 
-        /* 既存のスタイル */
-        .score-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+                    /* タスク管理 */
+            .task-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                background: #f8f9fa;
+            }
+
+            .task-info {
+                flex: 1;
+            }
+
+            .task-name {
+                font-weight: bold;
+                font-size: 1.1em;
+                margin-bottom: 5px;
+            }
+
+            .task-points {
+                color: #667eea;
+                font-weight: bold;
+            }
+
+            .task-description {
+                color: #666;
+                font-size: 0.9em;
+            }
+
+            .task-actions {
+                display: flex;
+                gap: 10px;
+            }
+
+            .button-small {
+                padding: 5px 15px;
+                font-size: 14px;
+            }
+
+            .button-danger {
+                background: #dc3545;
+            }
+
+            .button-danger:hover {
+                background: #c82333;
+            }
+
+            /* CSV結果表示 */
+            .import-result {
+                padding: 15px;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+
+            .import-result.success {
+                background: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .import-result.error {
+                background: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+            /* レスポンシブ */
+        @media (max-width: 768px) {
+            .score-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-grid {
+                font-size: 0.8em;
+            }
+
+            .calendar-cell {
+                min-height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧼 家事ポイントゲーム</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">📊 ダッシュボード</button>
+            <button class="tab" onclick="showTab('record')">📝 家事を記録</button>
+            <button class="tab" onclick="showTab('calendar')">📅 カレンダー</button>
+            <button class="tab" onclick="showTab('history')">📜 履歴</button>
+            <button class="tab" onclick="showTab('tasks')">🏠 家事管理</button>
+            <button class="tab" onclick="showTab('csv')">📁 CSV</button>
+        </div>
+
+        <!-- ダッシュボード -->
+        <div id="dashboard" class="content active">
+            <h2>ダッシュボード</h2>
+            <div class="score-cards">
+                <div class="score-card wife">
+                    <h3>👩 妻</h3>
+                    <div class="points" id="wifePoints">0</div>
+                    <div>ポイント</div>
+                </div>
+                <div class="score-card husband">
+                    <h3>👨 夫</h3>
+                    <div class="points" id="husbandPoints">0</div>
+                    <div>ポイント</div>
+                </div>
+            </div>
+            
+            <h3>最近の活動</h3>
+            <div id="recentLogs" class="log-list">
+                <!-- 最近のログがここに表示されます -->
+            </div>
+        </div>
+
+        <!-- 記録 -->
+        <div id="record" class="content">
+            <h2>家事を記録</h2>
+            <form id="recordForm">
+                <div class="form-group">
+                    <label for="taskSelect">家事を選択</label>
+                    <select id="taskSelect" required>
+                        <option value="">選択してください</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>実行者</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="user" value="wife" required>
+                            👩 妻
+                        </label>
+                        <label>
+                            <input type="radio" name="user" value="husband" required>
+                            👨 夫
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="loadFactor">負荷係数: <span id="loadValue">1.0</span></label>
+                    <input type="range" id="loadFactor" min="0.5" max="2.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="form-group">
+                    <label for="healthFactor">体調係数: <span id="healthValue">1.0</span></label>
+                    <input type="range" id="healthFactor" min="0.5" max="1.0" step="0.1" value="1.0">
+                </div>
+
+                <button type="submit" class="button">記録する</button>
+            </form>
+        </div>
+
+        <!-- カレンダー -->
+        <div id="calendar" class="content">
+            <h2>カレンダー</h2>
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h3 id="calendarTitle">2024年1月</h3>
+                    <div class="calendar-nav">
+                        <button onclick="changeMonth(-1)">← 前月</button>
+                        <button onclick="changeMonth(0)">今月</button>
+                        <button onclick="changeMonth(1)">次月 →</button>
+                    </div>
+                </div>
+                <div id="calendarGrid" class="calendar-grid">
+                    <!-- カレンダーがここに生成されます -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 履歴 -->
+        <div id="history" class="content">
+            <h2>履歴</h2>
+            <div id="historyList" class="log-list">
+                <!-- 履歴がここに表示されます -->
+            </div>
+        </div>
+
+        <!-- 家事管理 -->
+        <div id="tasks" class="content">
+            <h2>家事タスク管理</h2>
+            
+            <div class="form-group">
+                <label>新しい家事を追加</label>
+                <form id="addTaskForm" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="newTaskName" placeholder="家事名" required style="flex: 1;">
+                    <input type="number" id="newTaskPoints" placeholder="ポイント" min="1" required style="width: 100px;">
+                    <input type="text" id="newTaskDescription" placeholder="説明（任意）" style="flex: 1;">
+                    <button type="submit" class="button">追加</button>
+                </form>
+            </div>
+
+            <div id="tasksList" class="log-list">
+                <!-- タスク一覧がここに表示されます -->
+            </div>
+        </div>
+
+        <!-- CSV -->
+        <div id="csv" class="content">
+            <h2>CSV インポート/エクスポート</h2>
+            
+            <div style="margin-bottom: 30px;">
+                <h3>エクスポート</h3>
+                <p>現在の家事タスクをCSVファイルとしてダウンロードできます。</p>
+                <button class="button" onclick="exportTasks()">タスクをエクスポート</button>
+            </div>
+
+            <div>
+                <h3>インポート</h3>
+                <p>CSVファイルから家事タスクを一括登録できます。</p>
+                <p style="color: #666; font-size: 0.9em;">※ CSVファイルは「name,base_points,description」の形式で作成してください</p>
+                
+                <div class="form-group">
+                    <input type="file" id="csvFile" accept=".csv" style="margin-bottom: 10px;">
+                    <button class="button" onclick="importTasks()">タスクをインポート</button>
+                </div>
+                
+                <div id="importResult" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日別詳細モーダル -->
+    <div id="dayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalDate">2024年1月1日</h3>
+                <button class="modal-close" onclick="closeDayModal()">×</button>
+            </div>
+            <div id="modalContent">
+                <!-- 日別詳細がここに表示されます -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth() + 1;
+        let logsData = [];
+
+        // タブ切り替え
+        function showTab(tabName) {
+            // 全タブとコンテンツを非アクティブに
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            
+            // 選択されたタブとコンテンツをアクティブに
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // タブに応じてデータを読み込む
+            if (tabName === 'dashboard') {
+                loadScores();
+                loadRecentLogs();
+            } else if (tabName === 'calendar') {
+                loadCalendar();
+            } else if (tabName === 'history') {
+                loadHistory();
+            } else if (tabName === 'tasks') {
+                loadTasksList();
+            }
         }
 
-        .score-card {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            color: white;
-            position: relative;
-            overflow: hidden;
+        // タスク読み込み
+        async function loadTasks() {
+            try {
+                const response = await fetch('/tasks');
+                const data = await response.json();
+                
+                const select = document.getElementById('taskSelect');
+                select.innerHTML = '<option value="">選択してください</option>';
+                
+                data.tasks.forEach(task => {
+                    const option = document.createElement('option');
+                    option.value = task.id;
+                    option.textContent = `${task.name} (${task.base_points}pt)`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('タスク読み込みエラー:', error);
+            }
         }
 
-        .score-card.blue {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        // スコア読み込み
+        async function loadScores() {
+            try {
+                const response = await fetch('/scores/weekly');
+                const data = await response.json();
+                
+                document.getElementById('wifePoints').textContent = data.wife_points || 0;
+                document.getElementById('husbandPoints').textContent = data.husband_points || 0;
+            } catch (error) {
+                console.error('スコア読み込みエラー:', error);
+            }
         }
 
-        .score-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+        // 最近のログを読み込む
+        async function loadRecentLogs() {
+            try {
+                const response = await fetch('/logs');
+                const data = await response.json();
+                
+                const recentLogs = data.logs.slice(0, 5);
+                const container = document.getElementById('recentLogs');
+                
+                if (recentLogs.length === 0) {
+                    container.innerHTML = '<p style="color: #666;">まだ記録がありません</p>';
+                    return;
+                }
+                
+                container.innerHTML = recentLogs.map(log => {
+                    const date = new Date(log.created_at);
+                    const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+                    const userIcon = log.user_id === 'wife' ? '👩' : '👨';
+                    
+                    return `
+                        <div class="log-item">
+                            <div class="log-item-header">
+                                <span>${userIcon} ${log.task_name}</span>
+                                <span class="log-item-points">${log.points}pt</span>
+                            </div>
+                            <div class="log-item-time">${dateStr}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('ログ読み込みエラー:', error);
+            }
         }
 
-        .score-card .points {
-            font-size: 3rem;
-            font-weight: bold;
-            margin: 10px 0;
+        // カレンダー表示
+        async function loadCalendar() {
+            try {
+                // ログデータを取得
+                const response = await fetch('/logs');
+                const data = await response.json();
+                logsData = data.logs;
+
+                // タイトル更新
+                document.getElementById('calendarTitle').textContent = `${currentYear}年${currentMonth}月`;
+
+                // カレンダーグリッド生成
+                const grid = document.getElementById('calendarGrid');
+                grid.innerHTML = '';
+
+                // 曜日ヘッダー
+                const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+                weekDays.forEach(day => {
+                    const cell = document.createElement('div');
+                    cell.className = 'calendar-cell header';
+                    cell.textContent = day;
+                    grid.appendChild(cell);
+                });
+
+                // 月の最初の日と最後の日を取得
+                const firstDay = new Date(currentYear, currentMonth - 1, 1).getDay();
+                const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+                // 空白セル
+                for (let i = 0; i < firstDay; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'calendar-cell empty';
+                    grid.appendChild(cell);
+                }
+
+                // 日付セル
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'calendar-cell';
+                    
+                    const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const dayLogs = logsData.filter(log => log.created_at.startsWith(dateStr));
+                    
+                    if (dayLogs.length > 0) {
+                        cell.classList.add('has-data');
+                        const totalPoints = dayLogs.reduce((sum, log) => sum + log.points, 0);
+                        cell.innerHTML = `
+                            <div class="date">${day}</div>
+                            <div class="points">${totalPoints}pt</div>
+                        `;
+                        cell.onclick = () => showDayDetails(dateStr, dayLogs);
+                    } else {
+                        cell.innerHTML = `<div class="date">${day}</div>`;
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            } catch (error) {
+                console.error('カレンダー読み込みエラー:', error);
+            }
         }
 
-        .score-card .label {
-            font-size: 0.9rem;
-            opacity: 0.9;
+        // 月変更
+        function changeMonth(direction) {
+            if (direction === 0) {
+                const now = new Date();
+                currentYear = now.getFullYear();
+                currentMonth = now.getMonth() + 1;
+            } else {
+                currentMonth += direction;
+                if (currentMonth > 12) {
+                    currentMonth = 1;
+                    currentYear++;
+                } else if (currentMonth < 1) {
+                    currentMonth = 12;
+                    currentYear--;
+                }
+            }
+            loadCalendar();
         }
 
-        .task-form {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
+        // 日別詳細表示
+        function showDayDetails(dateStr, logs) {
+            const date = new Date(dateStr);
+            const dateFormatted = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+            
+            document.getElementById('modalDate').textContent = dateFormatted;
+            
+            const content = document.getElementById('modalContent');
+            const totalPoints = logs.reduce((sum, log) => sum + log.points, 0);
+            const wifePoints = logs.filter(log => log.user_id === 'wife').reduce((sum, log) => sum + log.points, 0);
+            const husbandPoints = logs.filter(log => log.user_id === 'husband').reduce((sum, log) => sum + log.points, 0);
+            
+            content.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <p>総ポイント: <strong>${totalPoints}pt</strong></p>
+                    <p>妻: ${wifePoints}pt / 夫: ${husbandPoints}pt</p>
+                </div>
+                <h4>詳細</h4>
+                ${logs.map(log => {
+                    const time = new Date(log.created_at);
+                    const timeStr = `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}`;
+                    const userIcon = log.user_id === 'wife' ? '👩' : '👨';
+                    
+                    return `
+                        <div class="log-item">
+                            <div class="log-item-header">
+                                <span>${timeStr} ${userIcon} ${log.task_name}</span>
+                                <span class="log-item-points">${log.points}pt</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            `;
+            
+            document.getElementById('dayModal').classList.add('show');
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+        // モーダルを閉じる
+        function closeDayModal() {
+            document.getElementById('dayModal').classList.remove('show');
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
+        // 履歴表示
+        async function loadHistory() {
+            try {
+                const response = await fetch('/logs');
+                const data = await response.json();
+                
+                const container = document.getElementById('historyList');
+                
+                if (data.logs.length === 0) {
+                    container.innerHTML = '<p style="color: #666;">まだ記録がありません</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.logs.map(log => {
+                    const date = new Date(log.created_at);
+                    const dateStr = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+                    const userIcon = log.user_id === 'wife' ? '👩' : '👨';
+                    
+                    return `
+                        <div class="log-item">
+                            <div class="log-item-header">
+                                <span>${userIcon} ${log.task_name}</span>
+                                <span class="log-item-points">${log.points}pt</span>
+                            </div>
+                            <div class="log-item-time">${dateStr}</div>
+                            <div style="color: #666; font-size: 0.9em;">
+                                負荷: ${log.load} / 体調: ${log.health}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('履歴読み込みエラー:', error);
+            }
         }
 
-        .form-group label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #555;
+        // タスク一覧表示
+        async function loadTasksList() {
+            try {
+                const response = await fetch('/tasks');
+                const data = await response.json();
+                
+                const container = document.getElementById('tasksList');
+                
+                if (data.tasks.length === 0) {
+                    container.innerHTML = '<p style="color: #666;">タスクがありません</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.tasks.map(task => `
+                    <div class="task-item">
+                        <div class="task-info">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-points">${task.base_points}ポイント</div>
+                            ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                        </div>
+                        <div class="task-actions">
+                            <button class="button button-small button-secondary" onclick="editTask(${task.id})">編集</button>
+                            <button class="button button-small button-danger" onclick="deleteTask(${task.id})">削除</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('タスク一覧読み込みエラー:', error);
+            }
         }
 
-        .form-group input,
-        .form-group select {
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
+        // タスク編集
+        async function editTask(taskId) {
+            const response = await fetch('/tasks');
+            const data = await response.json();
+            const task = data.tasks.find(t => t.id === taskId);
+            
+            if (!task) return;
+            
+            const newName = prompt('タスク名:', task.name);
+            if (!newName) return;
+            
+            const newPoints = prompt('基本ポイント:', task.base_points);
+            if (!newPoints) return;
+            
+            const newDescription = prompt('説明:', task.description);
+            
+            try {
+                const response = await fetch(`/tasks/${taskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: newName,
+                        base_points: parseInt(newPoints),
+                        description: newDescription || ''
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('タスクを更新しました');
+                    loadTasksList();
+                    loadTasks(); // セレクトボックスも更新
+                }
+            } catch (error) {
+                console.error('タスク更新エラー:', error);
+                alert('タスクの更新に失敗しました');
+            }
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
+        // タスク削除
+        async function deleteTask(taskId) {
+            if (!confirm('このタスクを削除しますか？')) return;
+            
+            try {
+                const response = await fetch(`/tasks/${taskId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('タスクを削除しました');
+                    loadTasksList();
+                    loadTasks(); // セレクトボックスも更新
+                }
+            } catch (error) {
+                console.error('タスク削除エラー:', error);
+                alert('タスクの削除に失敗しました');
+            }
         }
 
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
+        // CSVエクスポート
+        async function exportTasks() {
+            try {
+                const response = await fetch('/tasks/export');
+                const blob = await response.blob();
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'housework_tasks.csv';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                alert('タスクをエクスポートしました');
+            } catch (error) {
+                console.error('エクスポートエラー:', error);
+                alert('エクスポートに失敗しました');
+            }
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        // CSVインポート
+        async function importTasks() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('ファイルを選択してください');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const response = await fetch('/tasks/import', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/csv',
+                        },
+                        body: e.target.result
+                    });
+                    
+                    const result = await response.json();
+                    
+                    const resultDiv = document.getElementById('importResult');
+                    
+                    if (response.ok) {
+                        resultDiv.innerHTML = `
+                            <div class="import-result success">
+                                <strong>インポート成功</strong><br>
+                                ${result.message}
+                                ${result.errors.length > 0 ? `<br><br>エラー:<br>${result.errors.join('<br>')}` : ''}
+                            </div>
+                        `;
+                        
+                        // タスク一覧を更新
+                        loadTasksList();
+                        loadTasks();
+                        
+                        // ファイル選択をリセット
+                        fileInput.value = '';
+                    } else {
+                        resultDiv.innerHTML = `
+                            <div class="import-result error">
+                                <strong>インポート失敗</strong><br>
+                                ${result.detail}
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('インポートエラー:', error);
+                    document.getElementById('importResult').innerHTML = `
+                        <div class="import-result error">
+                            <strong>インポート失敗</strong><br>
+                            ファイルの処理中にエラーが発生しました
+                        </div>
+                    `;
+                }
+            };
+            
+            reader.readAsText(file);
         }
 
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        // フォームの設定
+        document.addEventListener('DOMContentLoaded', function() {
+            // タスク読み込み
+            loadTasks();
+            loadScores();
+            loadRecentLogs();
 
-        .btn.green {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
+            // スライダー設定
+            document.getElementById('loadFactor').addEventListener('input', function(e) {
+                document.getElementById('loadValue').textContent = e.target.value;
+            });
 
-        .search-box {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            transition: border-color 0.3s ease;
-        }
+            document.getElementById('healthFactor').addEventListener('input', function(e) {
+                document.getElementById('healthValue').textContent = e.target.value;
+            });
 
-        .search-box:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+            // フォーム送信
+            document.getElementById('recordForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const taskId = document.getElementById('taskSelect').value;
+                const userId = document.querySelector('input[name="user"]:checked')?.value;
+                const load = parseFloat(document.getElementById('loadFactor').value);
+                const health = parseFloat(document.getElementById('healthFactor').value);
+                
+                if (!taskId || !userId) {
+                    alert('全ての項目を入力してください');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/logs', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            task_id: parseInt(taskId),
+                            user_id: userId,
+                            load: load,
+                            health: health
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        alert(`記録しました！ ${data.log.points}ポイント獲得！`);
+                        
+                        // フォームリセット
+                        document.getElementById('recordForm').reset();
+                        document.getElementById('loadValue').textContent = '1.0';
+                        document.getElementById('healthValue').textContent = '1.0';
+                        
+                        // スコア更新
+                        loadScores();
+                        loadRecentLogs();
+                    } else {
+                        alert('記録に失敗しました');
+                    }
+                } catch (error) {
+                    console.error('記録エラー:', error);
+                    alert('記録に失敗しました');
+                }
+            });
 
-        .btn-small {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            margin: 0 5px;
-        }
+            // タスク追加フォーム
+            document.getElementById('addTaskForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('newTaskName').value;
+                const points = parseInt(document.getElementById('newTaskPoints').value);
+                const description = document.getElementById('newTaskDescription').value;
+                
+                try {
+                    const response = await fetch('/tasks', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            base_points: points,
+                            description: description
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        alert('タスクを追加しました');
+                        
+                        // フォームリセット
+                        document.getElementById('addTaskForm').reset();
+                        
+                        // リスト更新
+                        loadTasksList();
+                        loadTasks();
+                    } else {
+                        alert('タスクの追加に失敗しました');
+                    }
+                } catch (error) {
+                    console.error('タスク追加エラー:', error);
+                    alert('タスクの追加に失敗しました');
+                }
+            });
 
-        .btn-small:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-small.delete {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-        }
-
-        .btn-small.delete:hover {
-            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
-        }
-
-        .task-list {
-            display: grid;
-            gap: 15px;
-        }
-
-        .task-item {
-            background: white;
-            border: 2px solid #f1f3f4;
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .task-item:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .task-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .task-points {
-            background: #667eea;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .task-details {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .task-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .edit-form {
-            display: grid;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #f1f3f4;
-        }
-
-        .edit-form-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 10px;
-            align-items: end;
-        }
-
-        .edit-form input {
-            padding: 8px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .edit-form input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .log-entry {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius:
+            // モーダルの外側クリックで閉じる
+            document.getElementById('dayModal').addEventListener('click', function(e) {
+                if (e.target.id === 'dayModal') {
+                    closeDayModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
