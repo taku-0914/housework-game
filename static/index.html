@@ -405,6 +405,21 @@
         <div id="manage" class="content hidden">
             <h2 style="margin-bottom: 20px;">⚙️ 家事管理</h2>
             
+            <!-- CSV機能 -->
+            <div class="task-form">
+                <h3 style="margin-bottom: 15px;">📤 CSV エクスポート・インポート</h3>
+                <div class="form-row">
+                    <button class="btn" onclick="exportTasksCSV()">📥 CSV エクスポート</button>
+                    <div class="form-group">
+                        <label for="csvFile">CSVファイルを選択</label>
+                        <input type="file" id="csvFile" accept=".csv" onchange="handleCSVFile(event)">
+                    </div>
+                </div>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                    CSVフォーマット: name, base_points, description
+                </p>
+            </div>
+            
             <div class="task-form">
                 <h3 style="margin-bottom: 15px;">➕ 新しい家事を追加</h3>
                 <div class="form-row">
@@ -687,6 +702,75 @@
                 }
             } catch (error) {
                 showNotification('履歴の読み込みに失敗しました', 'error');
+            }
+        }
+
+        // CSVエクスポート
+        async function exportTasksCSV() {
+            try {
+                const response = await fetch('/tasks/export');
+                if (!response.ok) {
+                    throw new Error('CSVエクスポートに失敗しました');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'housework_tasks.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showNotification('CSVファイルをダウンロードしました！');
+            } catch (error) {
+                showNotification('CSVエクスポートに失敗しました', 'error');
+            }
+        }
+
+        // CSVファイルのインポート
+        async function handleCSVFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showNotification('CSVファイルを選択してください', 'error');
+                return;
+            }
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const response = await fetch('/tasks/import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/octet-stream',
+                    },
+                    body: arrayBuffer
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    showNotification(`インポートエラー: ${result.error}`, 'error');
+                } else {
+                    let message = result.message;
+                    if (result.errors && result.errors.length > 0) {
+                        message += `\n警告: ${result.errors.length}件のエラーがありました`;
+                        console.log('インポートエラー詳細:', result.errors);
+                    }
+                    showNotification(message);
+
+                    // タスク選択肢を更新
+                    loadTasksForSelect();
+                    loadTasks();
+                }
+
+                // ファイル選択をクリア
+                event.target.value = '';
+
+            } catch (error) {
+                showNotification('CSVファイルの処理に失敗しました', 'error');
             }
         }
 
