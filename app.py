@@ -297,6 +297,24 @@ async def debug():
         "status": "OK"
     }
 
+ # 現在時刻を取得
+    now = datetime.datetime.now()
+    
+    # ログ作成（日付と時刻を追加）
+    new_log = {
+        "id": len(logs) + 1,
+        "task_id": log.task_id,
+        "task_name": task["name"],
+        "user_id": log.user_id,
+        "points": points,
+        "load": log.load,
+        "health": log.health,
+        "created_at": now.isoformat(),
+        "date": now.strftime("%Y-%m-%d"),  # 追加
+        "time": now.strftime("%H:%M")       # 追加
+    }
+```
+
 # ヘルスチェック
 @app.get("/health")
 async def health_check():
