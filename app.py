@@ -297,21 +297,67 @@ async def debug():
         "status": "OK"
     }
 
- # 現在時刻を取得
-    now = datetime.datetime.now()
+# カレンダー機能のエンドポイント
+@app.get("/calendar/{year}/{month}")
+async def get_calendar_data(year: int, month: int):
+    """指定された年月のカレンダーデータを返す"""
+    month_str = f"{year}-{month:02d}"
+    month_logs = [log for log in logs if log.get("date", "").startswith(month_str)]
     
-    # ログ作成（日付と時刻を追加）
-    new_log = {
-        "id": len(logs) + 1,
-        "task_id": log.task_id,
-        "task_name": task["name"],
-        "user_id": log.user_id,
-        "points": points,
-        "load": log.load,
-        "health": log.health,
-        "created_at": now.isoformat(),
-        "date": now.strftime("%Y-%m-%d"),  # 追加
-        "time": now.strftime("%H:%M")       # 追加
+    daily_data = {}
+    for log in month_logs:
+        date = log.get("date", "")
+        if date not in daily_data:
+            daily_data[date] = {
+                "total_points": 0,
+                "wife_points": 0,
+                "husband_points": 0,
+                "task_count": 0
+            }
+        
+        daily_data[date]["total_points"] += log["points"]
+        daily_data[date]["task_count"] += 1
+        
+        if log["user_id"] == "wife":
+            daily_data[date]["wife_points"] += log["points"]
+        else:
+            daily_data[date]["husband_points"] += log["points"]
+    
+    total_points = sum(log["points"] for log in month_logs)
+    wife_points = sum(log["points"] for log in month_logs if log["user_id"] == "wife")
+    husband_points = sum(log["points"] for log in month_logs if log["user_id"] == "husband")
+    
+    return {
+        "year": year,
+        "month": month,
+        "daily_data": daily_data,
+        "summary": {
+            "total_points": total_points,
+            "wife_points": wife_points,
+            "husband_points": husband_points,
+            "total_tasks": len(month_logs)
+        }
+    }
+
+@app.get("/calendar/day/{date}")
+async def get_day_logs(date: str):
+    """指定日のログ詳細を返す"""
+    day_logs = [log for log in logs if log.get("date", "") == date]
+    day_logs.sort(key=lambda x: x.get("time", ""))
+    
+    total_points = sum(log["points"] for log in day_logs)
+    wife_points = sum(log["points"] for log in day_logs if log["user_id"] == "wife")
+    husband_points = sum(log["points"] for log in day_logs if log["user_id"] == "husband")
+    
+    return {
+        "date": date,
+        "logs": day_logs,
+        "summary": {
+            "total_points": total_points,
+            "wife_points": wife_points,
+            "husband_points": husband_points,
+            "task_count": len(day_logs)
+        }
     }
 ```
 
